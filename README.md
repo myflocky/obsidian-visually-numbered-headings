@@ -45,7 +45,7 @@ Each heading now uses its **own level** when generating numbers. Additionally, d
 A new standalone listener, **`VNumHeadingsListener`**, has been introduced to monitor changes to the `vnumheadings` frontmatter field.
 
 * Listens for metadata changes in the active file
-* Enables or disables heading numbering in real time，Heading numbering can be toggled using the frontmatter property: vnumheadings. Setting vnumheadings: 1 enables numbering, while omitting the property or setting it to 0 disables it.
+* Enables or disables heading numbering in real time，Heading numbering can be toggled using the frontmatter property: vnumheadings. Omitting the property or setting vnumheadings to 1 enables numbering, while setting it to 0 disables it.
 * Triggers a preview re-render when the value changes
 * Enable heading numbering by default unless vnumheadings is set to 0, If the vnumheadings option is not set, numbering will still be applied. Numbering is disabled only when vnumheadings is explicitly set to 0.
 
