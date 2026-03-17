@@ -61,7 +61,7 @@ export function headingCountPlugin(plugin: CountPlugin) {
 
 			buildDecorations(view: EditorView): DecorationSet {
 				const builder = new RangeSetBuilder<Decoration>();
-				if(plugin.vnumheadingsListener.currentVNumHeadings==="0")
+				if(plugin.vnumheadingsListener.currentVNumHeadings !== "1")
 					return builder.finish();
 				
 				const numGen = new NumberGenerator(plugin);

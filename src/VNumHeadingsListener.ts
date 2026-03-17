@@ -43,7 +43,7 @@ export class VNumHeadingsListener {
       this.currentVNumHeadings =
         frontmatter?.vnumheadings !== undefined
           ? String(frontmatter.vnumheadings)
-          : null;
+          : "1"; // when no vnumheadings defined in frontmatter, default currentVNumHeadings will be set to "1" from null;
     } else {
       this.currentVNumHeadings = null;
     }

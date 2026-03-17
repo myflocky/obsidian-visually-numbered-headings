@@ -11,6 +11,7 @@ export default class CountPlugin extends Plugin {
 	private cmExtension: Extension[];
 	public settings: CountPluginSettings;
 	public mdNumGenCache = new Cache<NumberGenerator>();
+	public mdNumberedSectionCache= new Cache<boolean>();
 
 	isInitialLoad = true;
 
@@ -22,7 +23,6 @@ export default class CountPlugin extends Plugin {
 		true
 	);
 	
-	private firstSection: number | null = null ;
 	private lastDocName: string | null = null ;
 
 	vnumheadingsListener: VNumHeadingsListener;
@@ -65,12 +65,11 @@ export default class CountPlugin extends Plugin {
 		
 		this.registerEvent(this.app.workspace.on("active-leaf-change", () => {
 			this.resetCache();
-			this.firstSection = null;
 			})
 		);
 
 		this.registerMarkdownPostProcessor((element, context) => {
-			if(this.vnumheadingsListener.currentVNumHeadings==="0" )
+			if(this.vnumheadingsListener.currentVNumHeadings !== "1" )
 				return;
 				
 			const headings =
@@ -84,42 +83,36 @@ export default class CountPlugin extends Plugin {
 				if(docName !== this.lastDocName)
 				{
 				  this.mdNumGenCache.clearAll();
-				  this.firstSection = null;
+				  this.mdNumberedSectionCache.clearAll();
 				}
 				this.lastDocName = docName;
-			
-				const first = headings[0];
-				const section = context.getSectionInfo(first);
-				if (!section) 
-					return;
-					
-				if (section.lineStart === this.firstSection) {
-				  this.mdNumGenCache.clearAll(); 
-				}
-				
-				if(this.firstSection === null){
-					this.firstSection = section.lineStart;	
-				}
 			}
 
-			const docId = context.docId;
 
-			if (!this.mdNumGenCache.exists(docId)) {
-				const numGen = new NumberGenerator(this);
 
-				this.mdNumGenCache.set(docId, numGen);
-			}
-
-			const numGen = this.mdNumGenCache.get(docId) as NumberGenerator;
-
-			for (const h of headings) {
-				const hLvl = Number(h.tagName[1]); 
-				
+			for (const h of headings) {				
 				if (element.closest('.print') !== null && h.classList.contains('__title__')) {
 				  console.log('PDF export: Skip inline title, dont number its heading');
 				  continue;
 				}
+				
+				const section = context.getSectionInfo(h);
+				if (!section)
+					return;
+				if(this.mdNumberedSectionCache.exists(section.lineStart)){
+					this.mdNumGenCache.clearAll();
+					this.mdNumberedSectionCache.clearAll();
+				}
+				this.mdNumberedSectionCache.set(section.lineStart, true);	
+
+				const docId = context.docId;
+				if (!this.mdNumGenCache.exists(docId)) {
+					const numGen = new NumberGenerator(this);
+					this.mdNumGenCache.set(docId, numGen);
+				}
+				const numGen = this.mdNumGenCache.get(docId) as NumberGenerator;
 			
+				const hLvl = Number(h.tagName[1]); 
 				const num = numGen ? numGen.nextNum(hLvl) : "";
 				context.addChild(new PreviewCount(h, num));
 			}
