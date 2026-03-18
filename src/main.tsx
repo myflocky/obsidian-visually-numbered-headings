@@ -96,14 +96,16 @@ export default class CountPlugin extends Plugin {
 				  continue;
 				}
 				
-				const section = context.getSectionInfo(h);
-				if (!section)
-					return;
-				if(this.mdNumberedSectionCache.exists(section.lineStart)){
-					this.mdNumGenCache.clearAll();
-					this.mdNumberedSectionCache.clearAll();
-				}
-				this.mdNumberedSectionCache.set(section.lineStart, true);	
+				if (markdownView && markdownView.getMode() === "preview") {
+					const section = context.getSectionInfo(h);
+					if (!section)
+						return;
+					if(this.mdNumberedSectionCache.exists(section.lineStart)){
+						this.mdNumGenCache.clearAll();
+						this.mdNumberedSectionCache.clearAll();
+					}
+					this.mdNumberedSectionCache.set(section.lineStart, true);
+				}				
 
 				const docId = context.docId;
 				if (!this.mdNumGenCache.exists(docId)) {
